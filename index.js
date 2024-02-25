@@ -22,6 +22,7 @@ app.get('/', (req, res) => {
         </head>
         <body>
             <h1>Available Endpoints</h1>
+            
             <ul>
                 ${routes
                     .map(
@@ -30,6 +31,13 @@ app.get('/', (req, res) => {
                     )
                     .join('')}
             </ul>
+            <h3>replace :username with user names</h3>
+            <h4>to get sample usernames try <u>/users</u> api call </h4>
+            <h5>sample username: virat</h5>
+
+
+
+            <p> API wriiten by Sujith V L</p>
         </body>
         </html>
     `;
@@ -54,11 +62,11 @@ app.get('/users/:username', async (req, res) => {
         if (userData.length > 0) {
             res.json({ data: userData[0] });
         } else {
-            res.status(404).json({ status: 'error', message: 'User not found' });
+            res.json({ status: 'error', message: 'User not found' ,data:userData});
         }
     } catch (error) {
         console.error('Unable to get user data', error);
-        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+        res.json({ status: 'error', message: 'Internal Server Error' });
     }
 });
 
@@ -77,7 +85,7 @@ app.get('/users/:username/posts', async (req, res) => {
         const userData = await getDataByFields('posts', { fieldName: 'username', fieldValue: username });
 
         if (userData.length > 0) {
-            res.json({ data: userData[0] });
+            res.json({ data: userData });
         } else {
             res.status(404).json({ status: 'error', message: 'User not found' });
         }
@@ -86,6 +94,9 @@ app.get('/users/:username/posts', async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Internal Server Error' });
     }
 });
+
+
+
 
 app.post('/users/:username/add-post', upload.single('photo'), async (req, res) => {
     try {
@@ -132,8 +143,9 @@ app.post('/signup', async (req, res) => {
         const existingUserData = await getDataByFields('users', { fieldName: 'username', fieldValue: userData.username });
 
         if (existingUserData.length === 0) {
-            await uploadData(userData, 'users');
-            res.json({ status: 'success', message: 'User signed up successfully' });
+            const usrdata = await uploadData(userData, 'users');
+            console.log(usrdata);
+            res.json({ status: 'success', message: 'User signed up successfully' ,data:usrdata});
         } else {
             res.status(400).json({ status: 'error', message: 'Username already taken' });
         }
@@ -149,9 +161,9 @@ app.post('/login', async (req, res) => {
         const userData = await getDataByFields('users', { fieldName: 'username', fieldValue: username });
 
         if (userData.length > 0 && userData[0].password === password) {
-            res.json({ status: 'success', message: 'User logged in successfully' });
+            res.json({ status: 'success', message: 'User logged in successfully',data:userData });
         } else {
-            res.status(401).json({ status: 'error', message: 'Invalid username or password' });
+            res.json({ status: 'error', message: 'Invalid username or password' });
         }
     } catch (error) {
         console.error('Error during user login:', error);
@@ -160,39 +172,7 @@ app.post('/login', async (req, res) => {
 });
 
 
-app.post('/front/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const userData = await getDataByFields('users', { fieldName: 'username', fieldValue: username });
 
-        if (userData.length > 0 && userData[0].password === password) {
-            res.json(userData);
-        } 
-        else{
-            res.status(401).json({ status: 'error', message: 'Invalid username or password' });
-        }
-    } catch (error) {
-        console.error('Error during user login:', error);
-        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
-    }
-});
-
-app.post('/front/signup', async (req, res) => {
-    try {
-        const userData = req.body;
-        const existingUserData = await getDataByFields('users', { fieldName: 'username', fieldValue: userData.username });
-
-        if (existingUserData.length === 0) {
-            await uploadData(userData, 'users');
-            res.json({ status: 'success', message: 'User signed up successfully' });
-        } else {
-            res.status(400).json({ status: 'error', message: 'Username already taken' });
-        }
-    } catch (error) {
-        console.error('Error during user signup:', error);
-        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
-    }
-});
 
 
 

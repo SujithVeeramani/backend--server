@@ -15,11 +15,17 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const uploadData = async (data, collectionName) => {
+    let docRef;
     try {
-        const docRef = await addDoc(collection(db, collectionName), data);
+        docRef = await addDoc(collection(db, collectionName), data);
         console.log('Document written with ID: ', docRef.id);
+
     } catch (e) {
+        docRef=undefined;
         console.error('Error adding document: ', e);
+    }
+    finally{
+        return docRef
     }
 };
 
