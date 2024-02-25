@@ -9,7 +9,33 @@ const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors());
+app.get('/', (req, res) => {
+    const routes = app._router.stack
+        .filter((r) => r.route)
+        .filter((r) => !r.route.path.startsWith('/front/'))
+        .map((r) => ({ path: r.route.path, methods: Object.keys(r.route.methods) }));
 
+    const html = `
+        <html>
+        <head>
+            <title>Available Endpoints</title>
+        </head>
+        <body>
+            <h1>Available Endpoints</h1>
+            <ul>
+                ${routes
+                    .map(
+                        (route) =>
+                            `<li><strong>${route.methods.join(', ')}:</strong> <a href="${route.path}">${route.path}</a></li>`
+                    )
+                    .join('')}
+            </ul>
+        </body>
+        </html>
+    `;
+
+    res.send(html);
+});
 app.get('/users', async (req, res) => {
 
         try {
