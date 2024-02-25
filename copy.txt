@@ -1,0 +1,21 @@
+
+const doesDataExistByFields = async (collectionName, fields) => {
+    try {
+        const collectionRef = collection(db, collectionName);
+        const querySnapshot = await getDocs(query(collectionRef, where(fields.fieldName, '==', fields.fieldValue)));
+
+        const data = [];
+
+        querySnapshot.forEach((doc) => {
+            data.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        return data.length > 0;
+    } catch (error) {
+        console.error('Error checking if data exists by fields: ', error);
+        throw error;
+    }
+};
