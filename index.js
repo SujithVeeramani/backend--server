@@ -10,34 +10,8 @@ const port = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cors());
 
-
-const userschema = {
-    type: 'object',
-    properties: {
-        username: { type: 'string', minLength: 3, maxLength: 30 },
-        password: { type: 'string', minLength: 5 },
-        email: { type: 'string', format: 'email' },
-        name: { type: 'string' }
-    },
-    required: ['username', 'password', 'email', 'name'],
-    additionalProperties: false
-};
-
-const validateUserData = (data) => {
-    if (typeof data !== 'object' || data === null) {
-        return false;
-    }
-
-    for (const [key, value] of Object.entries(userschema.properties)) {
-        if (userSchema.required.includes(key) && (data[key] === undefined || typeof data[key] !== value.type)) {
-            return false;
-        }
-    }
-
-    return true;
-};
-
 app.get('/users', async (req, res) => {
+
         try {
             const data = await getData('users');
             res.json({ status: 'success', data });
@@ -158,6 +132,42 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ status: 'error', message: 'Internal Server Error' });
     }
 });
+
+
+app.post('/front/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const userData = await getDataByFields('users', { fieldName: 'username', fieldValue: username });
+
+        if (userData.length > 0 && userData[0].password === password) {
+            res.json(userData);
+        } 
+        else{
+            res.status(401).json({ status: 'error', message: 'Invalid username or password' });
+        }
+    } catch (error) {
+        console.error('Error during user login:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
+});
+
+app.post('/front/signup', async (req, res) => {
+    try {
+        const userData = req.body;
+        const existingUserData = await getDataByFields('users', { fieldName: 'username', fieldValue: userData.username });
+
+        if (existingUserData.length === 0) {
+            await uploadData(userData, 'users');
+            res.json({ status: 'success', message: 'User signed up successfully' });
+        } else {
+            res.status(400).json({ status: 'error', message: 'Username already taken' });
+        }
+    } catch (error) {
+        console.error('Error during user signup:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    }
+});
+
 
 
 

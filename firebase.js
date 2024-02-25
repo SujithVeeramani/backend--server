@@ -78,6 +78,7 @@ const uploadFile = async (file, path) => {
     }
 };
 
+
 module.exports = {
-    uploadData,getData,getDataByFields,uploadFile,
+    uploadData,updateUserData,getData,getDataByFields,uploadFile,
 };
