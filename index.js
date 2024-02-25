@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
             </ul>
             <h3>replace :username with user names</h3>
             <h4>to get sample usernames try <u>/users</u> api call </h4>
-            <h5>sample username: virat</h5>
+            <h5>sample username: kamal</h5>
 
 
 
